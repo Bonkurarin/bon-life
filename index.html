@@ -4981,10 +4981,12 @@ try{document.head.appendChild(e)}catch(_){}}
 {const o=renderStage;renderStage=function(){o.apply(this,arguments);try{const st=document.getElementById("stage");if(st)st.classList.toggle("hassel",!!(selId&&R(selId)))}catch(e){}}}
 
 /* ================= v71: state guards (fresh games lacked some tables) ================= */
-function guardS(){try{if(!S)return;S.gone=S.gone||{};S.met=S.met||{};S.zb=S.zb||{};S.album=S.album||[];S.letters=S.letters||[];S.ach=S.ach||{};S.warn=S.warn||{};S.diary=S.diary||[];S.call=S.call||{};S.quarrel=S.quarrel||{};S.rtw=S.rtw||[];S.st=S.st||{};S.homes=S.homes||[]}catch(e){}}
+function guardS(){try{if(!S)return;S.gone=S.gone||{};S.met=S.met||{};S.zb=S.zb||{};S.album=S.album||[];S.letters=S.letters||[];S.ach=S.ach||{};S.warn=S.warn||{};S.diary=S.diary||[];S.call=S.call||{};S.quarrel=S.quarrel||{};S.rtw=S.rtw||[];S.st=S.st||{};S.homes=S.homes||[];if(S.rs&&S.rs.length&&(!selId||!R(selId)))selId=S.rs[0].id}catch(e){}}
 {const o=render;render=function(){guardS();return o.apply(this,arguments)}}
 {const o=renderBook;renderBook=function(){guardS();return o.apply(this,arguments)}}
 {const o=zukanHtml;zukanHtml=function(){guardS();return o.apply(this,arguments)}}
+{const o=renderCard;renderCard=function(){guardS();return o.apply(this,arguments)}}
+{const o=renderStage;renderStage=function(){guardS();return o.apply(this,arguments)}}
 {const o=enterGame;enterGame=function(){const r=o.apply(this,arguments);guardS();return r}}
 guardS();
 
