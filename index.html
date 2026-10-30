@@ -1039,7 +1039,7 @@ window.addEventListener("keydown",e=>{
 document.getElementById("gstart").addEventListener("click",()=>startGame());
 document.getElementById("auto").addEventListener("click",()=>{S.auto=!S.auto;clockMs=0;lastTick=Date.now();save();paintClock()});
 
-load();render();
+load();try{render()}catch(e){}
 /* ---------- more commands ---------- */
 function actStart(r){menu=null;callMenu=false;r.d.act=(r.d.act||0)+1;wakeCheck(r,false);staredCheck(r);if(r.d.act>=7){r.joy=clamp(r.joy-2);talkTo(r,"ちょっと、しつこいよ…",2600)}}
 function praise(){
