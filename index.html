@@ -553,7 +553,7 @@ function resolveQuarrels(){
   if(S.quarrel[k]>=S.day)return;
   const ids=k.split("|"),a=R(ids[0]),b=R(ids[1]);
   if(!a||!b){delete S.quarrel[k];return}
-  if(Math.random()<.6){
+  if(Math.random()<.85){
    delete S.quarrel[k];
    const sorry=Math.random()<.5?a:b,okb=sorry===a?b:a;
    S.rel[k]=Math.min(100,(S.rel[k]||0)+15);
@@ -661,7 +661,7 @@ function pairEvent(){
   return;
  }
  if(roll<.5){add(rnd(7,12));log(pick(POS)(A,B));happy2()}
- else if(roll<.78){add(-10);S.quarrel[k]=S.day;log(pick(NEG)(A,B));setX(a,upsetOf(a.id));setX(b,upsetOf(b.id));talkTo(a,pick(CAST[a.id].bad))}
+ else if(roll<.66){add(-10);S.quarrel[k]=S.day;log(pick(NEG)(A,B));setX(a,upsetOf(a.id));setX(b,upsetOf(b.id));talkTo(a,pick(CAST[a.id].bad))}
  else if(a.id==="mogu"||b.id==="mogu"){const m=a.id==="mogu"?a:b,o=m===a?b:a;log("もぐボンが"+CAST[o.id].name+"のごはんをつまみ食いした。");setX(m,"eat");add(-3)}
  else{log(pick(NEU)(A,B))}
 }
@@ -831,12 +831,12 @@ function nextDay(){
  initAffinity();rainLeave();awayCheck();abilities();festival();
  resolveQuarrels();homeLife();
  pairEvent();
- if(Math.random()<.7)talkEvent();
- if(S.rs.length>=3&&Math.random()<.6)pairEvent();
- if(S.rs.length>=4&&Math.random()<.4)pairEvent();
+ if(Math.random()<.85)talkEvent();
+ if(S.rs.length>=3&&Math.random()<.75)pairEvent();
+ if(S.rs.length>=4&&Math.random()<.5)pairEvent();
  if(Math.random()<.8)soloEvent();
  {const hy=R("hyoe");if(hy&&Math.random()<.6){const s=pick(["ひょえボンは自分のかげにおどろいた。","ひょえボンは波の音におびえて、岩かげにかくれた。","ひょえボンは、なにもないところを見て固まった。","ひょえボンは風でゆれた木を見て、悲鳴をあげた。"]);log(s);setX(hy,"scared",3500);hy.joy=clamp(hy.joy-3)}}
- if(Math.random()<.3)islandEvent();
+ if(Math.random()<.45)islandEvent();
  if(Math.random()<.3){log(pick(SEASON_EV[season().k]));S.rs.forEach(r=>{r.joy=clamp(r.joy+3);setX(r,"happy",3500)})}
 
  {const rn=R("rain");if(rn&&S.rs.length>=3&&S.weather!=="rain"&&Math.random()<.4){
@@ -926,13 +926,13 @@ function sfx(n){
  const now=Date.now();if(lastSfx[n]&&now-lastSfx[n]<180)return;lastSfx[n]=now;
  try{
   const t=AC.currentTime;
-  if(n==="tap")note(660,t,.08,"square",.05);
+  if(n==="tap")note(660,t,.08,"square",.09);
   else if(n==="eat"){note(180,t,.18,"sine",.25);note(240,t+.12,.2,"sine",.2)}
   else if(n==="happy"){[523,659,784].forEach((f,i)=>note(f,t+i*.07,.14,"triangle",.12))}
   else if(n==="scared"){note(700,t,.12,"square",.07);note(500,t+.08,.18,"square",.07)}
   else if(n==="chime"){[784,988,1175].forEach((f,i)=>note(f,t+i*.12,.35,"sine",.12))}
   else if(n==="day"){[523,392,523,659].forEach((f,i)=>note(f,t+i*.1,.3,"sine",.12))}
-  else if(n==="blip")note(880,t,.07,"square",.06);
+  else if(n==="blip")note(880,t,.07,"square",.09);
   else if(n==="cake"){[784,1047].forEach((f,i)=>note(f,t+i*.06,.12,"triangle",.1))}
   else if(n==="power"){[392,523,659,784].forEach((f,i)=>note(f,t+i*.05,.12,"square",.07))}
   else if(n==="boom"){note(90,t,.35,"sawtooth",.18);note(60,t+.05,.3,"sine",.2)}
@@ -3171,10 +3171,10 @@ function bonstaHtml(){
  if(!L.length)h+='<p style="padding:16px;margin:0;font-size:13px;opacity:.8">まだ投稿がないよ。レインボンちゃんの独り言を聞くと、ここに載るよ。</p>';
  L.forEach((x,i)=>{
   let hs=0;for(const c of x.t)hs=(hs*31+c.charCodeAt(0))%997;
-  const likes=20+hs%380,tg=tags[hs%tags.length];
+  const likes=20+hs%380,tg=(typeof rainTags==="function"?rainTags(x.t,hs):tags[hs%tags.length]);
   h+='<article style="padding:12px;border-bottom:1.5px solid var(--line)"><div style="font-size:12px;opacity:.7;margin-bottom:4px"><b>rainbon_official</b>・Day '+x.d+'</div>'
    +'<div style="line-height:1.7;font-size:14px">'+esc2(x.t)+'</div>'
-   +'<div style="font-size:12px;margin-top:6px;opacity:.85">❤️ '+likes+'　💬 '+(hs%9)+'　<span style="opacity:.7">'+tg+'</span></div></article>';
+   +'<div style="font-size:12px;margin-top:6px;opacity:.85">❤️ '+likes+'　💬 '+(typeof rainReplies==="function"?(rainReplies(x.t,hs).match(/<b style/g)||[]).length:hs%9)+'　<span style="opacity:.7">'+tg+'</span></div>'+(typeof rainReplies==="function"?rainReplies(x.t,hs):'')+'</article>';
  });
  return h+'</div>';
 }
@@ -4658,6 +4658,216 @@ function rampRate(to){
 
 /* ================= v64: BGM speed/pitch spread toned down ================= */
 Object.assign(BGM_RATE,{oko:1.05,niko:1.1,hyoe:.93,mogu:.96,nemu:.89,tere:.93,rain:1});
+
+/* ================= v65: Bon voices (individual/louder), mobile menu at bottom, swipe-close, easier balance, niji BGM ================= */
+/* --- balance --- */
+Object.assign(DIFF.gentle,{dec:9,jdec:3,away:.3});Object.assign(DIFF.normal,{dec:13,jdec:4,away:.6});Object.assign(DIFF.hard,{dec:18,jdec:6,away:1});
+{const o=DIFFV;DIFFV=function(){const d=o();if(S&&S.day<=7)return Object.assign({},d,{dec:Math.round(d.dec*.6),jdec:Math.max(1,Math.round(d.jdec*.5)),away:d.away*.5});return d}}
+/* --- voices --- */
+const VOICE_SPEC={
+ oko:{w:"sawtooth",hz:240,seq:[[0,1,.55,.13],[.16,.8,.5,.15]],g:.30},
+ niko:{w:"triangle",hz:420,seq:[[0,1,1.25,.1],[.11,1.25,1.5,.1],[.22,1.5,1.2,.14]],g:.32},
+ hyoe:{w:"sine",hz:520,seq:[[0,1,.9,.09],[.1,.95,1,.09],[.2,1,.8,.12]],g:.30,vib:[22,28]},
+ mogu:{w:"sine",hz:200,seq:[[0,1,.7,.32]],g:.40},
+ nemu:{w:"sine",hz:170,seq:[[0,1,.6,.5]],g:.36},
+ tere:{w:"sine",hz:620,seq:[[0,.8,1.2,.12],[.18,1.1,.9,.16]],g:.28},
+ rain:{w:"triangle",hz:330,seq:[[0,1,.6,.14],[.15,2,2.5,.25]],g:.30}};
+voiceOf=function(id){
+ if(!S.sound||!AC)return;
+ const now=Date.now();if(now-lastVoice<900)return;lastVoice=now;
+ const sp=VOICE_SPEC[id]||VOICE_SPEC.oko,t=AC.currentTime;
+ try{sp.seq.forEach(([dl,a,b,d])=>{
+  const o=AC.createOscillator(),g=AC.createGain();o.type=sp.w;
+  o.frequency.setValueAtTime(sp.hz*a,t+dl);o.frequency.exponentialRampToValueAtTime(Math.max(40,sp.hz*b),t+dl+d);
+  if(sp.vib){const l=AC.createOscillator(),lg=AC.createGain();l.frequency.value=sp.vib[0];lg.gain.value=sp.vib[1];l.connect(lg);lg.connect(o.frequency);l.start(t+dl);l.stop(t+dl+d+.05)}
+  g.gain.setValueAtTime(.0001,t+dl);g.gain.exponentialRampToValueAtTime(sp.g,t+dl+.015);g.gain.exponentialRampToValueAtTime(.0001,t+dl+d+.03);
+  o.connect(g);g.connect(master||AC.destination);o.start(t+dl);o.stop(t+dl+d+.06)})}catch(e){}
+};
+/* --- stage: front Bons are on top / easier taps --- */
+{const o=renderStage;renderStage=function(){o.apply(this,arguments);try{S.rs.forEach(r=>{const el=document.querySelector('#stage .res[data-id="'+r.id+'"]');if(el)el.style.zIndex=String(10+Math.round(r.y||0))})}catch(e){}}}
+/* --- CSS: menu bar at the bottom on phones --- */
+{const e=document.createElement("style");e.textContent="@media (max-width:600px){"
++".app{padding-bottom:calc(76px + env(safe-area-inset-bottom))}"
++".clock{position:fixed!important;left:0;right:0;bottom:0;z-index:650;margin:0!important;background:var(--paper,#fff);border-top:2.5px solid var(--line,#211d2e);padding:8px 10px calc(8px + env(safe-area-inset-bottom))!important;display:flex!important;flex-wrap:nowrap!important;gap:8px!important;overflow-x:auto;-webkit-overflow-scrolling:touch;align-items:center}"
++".clock>*{flex:0 0 auto;white-space:nowrap}.clock .clk{width:70px}"
++"#spbox{bottom:calc(76px + env(safe-area-inset-bottom))!important}}";
+try{document.head.appendChild(e)}catch(_){}}
+/* --- swipe down to close popups --- */
+{let sy=0,sx=0,tg=null;
+ const SKIP={title:1,guide:1,evask:1,spbox:1,quick:1};
+ const top=n=>{while(n&&n.parentNode!==document.body)n=n.parentNode;return n};
+ document.addEventListener("touchstart",ev=>{const t=ev.touches[0];sy=t.clientY;sx=t.clientX;tg=top(ev.target)},{passive:true});
+ document.addEventListener("touchend",ev=>{
+  try{
+   const t=ev.changedTouches[0],dy=t.clientY-sy,dx=t.clientX-sx;
+   if(dy<110||Math.abs(dx)>dy*.6||!tg||tg===document.body||SKIP[tg.id])return;
+   if(getComputedStyle(tg).position!=="fixed"||tg.hidden)return;
+   if(tg.scrollTop>0)return;
+   const bs=[...tg.querySelectorAll("button")];
+   const b=bs.find(x=>/もどる|戻る|とじる|閉じる|OK|✕|×|島に|ぜんぶ見た/.test(x.textContent));
+   if(b)b.click();
+  }catch(e){}
+ },{passive:true});
+}
+/* --- niji BGM --- */
+Object.defineProperty(BGM_RATE,"rain",{get:()=>(S&&S.niji?1.04:1),enumerable:true,configurable:true});
+BGM_TONE.niji=[["highshelf",3000,15],["peaking",6500,8,1.4],["peaking",1800,3,1]];
+BGM_FX.niji={tr:[8,.22],ec:[.21,.5,.5]};
+{const o=applyBgmTone;applyBgmTone=function(key){return o(key==="rain"&&S&&S.niji?"niji":key)}}
+/* --- louder tap/blip SE for balance --- */
+
+/* ================= v66: BGM / SE listening room on the title ================= */
+function musicRoom(){
+ let o=document.getElementById("mrov");if(o)o.remove();
+ const prevSound=S.sound,prevNiji=S.niji,prevSel=selId;
+ const BG=[["","🎵","げんきょく(ふつう)"],["oko","🔴","おこボン"],["niko","🟡","にこボン"],["hyoe","🔵","ひょえボン"],["mogu","🟢","もぐボン"],["nemu","🟣","ねむボン(オルゴール)"],["tere","🌸","てれボン"],["rain","🌈","レインボン"],["niji","✨","にじボン"]];
+ const SE=[["tap","👆","タップ"],["blip","•","ブリップ"],["eat","🍙","ごはん"],["happy","😊","うれしい"],["scared","😱","おどろき"],["chime","🔔","チャイム"],["day","🌅","あさ"],["cake","🍰","ケーキ"],["power","🚀","ロケット"],["boom","💥","ばくはつ"]];
+ const VO=[["oko","おこボン"],["niko","にこボン"],["hyoe","ひょえボン"],["mogu","もぐボン"],["nemu","ねむボン"],["tere","てれボン"],["rain","レインボン"]];
+ o=document.createElement("div");o.id="mrov";
+ o.style.cssText="position:fixed;inset:0;z-index:2000;background:var(--bg,#eaf4ff);overflow:auto;-webkit-overflow-scrolling:touch;padding:max(12px,env(safe-area-inset-top)) 12px 28px";
+ const bt=(a,l,c)=>'<button type="button" class="act" '+a+' style="padding:10px 6px;min-height:48px;font-size:14px;'+(c||"")+'">'+l+'</button>';
+ const grid='display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:8px 0 18px';
+ o.innerHTML='<div style="max-width:520px;margin:0 auto"><div style="margin-bottom:10px"><button type="button" id="mrback" class="act" style="padding:8px 14px">← タイトルにもどる</button></div>'
+ +'<h2 style="margin:6px 0 2px">🎧 おんがく鑑賞</h2><p style="margin:0 0 10px;font-size:13px;opacity:.8">ボタンをおすと、BGMや効果音が流れるよ。</p>'
+ +'<h3 style="margin:10px 0 0">BGM</h3><p id="mrnow" style="margin:2px 0;font-size:13px;opacity:.8">いま：ていし中</p><div style="'+grid+'">'+BG.map(b=>bt('data-bg="'+b[0]+'"',b[1]+" "+b[2])).join("")+'</div>'
+ +'<div style="margin:-8px 0 18px">'+bt('id="mrstop"',"⏹ BGMをとめる","width:100%")+'</div>'
+ +'<h3 style="margin:10px 0 0">ボンの声</h3><div style="'+grid+'">'+VO.map(v=>bt('data-vo="'+v[0]+'"',"🗣 "+v[1])).join("")+'</div>'
+ +'<h3 style="margin:10px 0 0">効果音</h3><div style="'+grid+'">'+SE.map(s=>bt('data-se="'+s[0]+'"',s[1]+" "+s[2])).join("")+'</div></div>';
+ document.body.appendChild(o);
+ const now=o.querySelector("#mrnow");
+ const ensure=()=>{S.sound=true;startAudio()};
+ const close=()=>{o.remove();S.niji=prevNiji;selId=prevSel;try{bgmToneFor=null;if(!prevSound)stopAudio()}catch(e){}S.sound=prevSound};
+ o.addEventListener("click",ev=>{
+  const b=ev.target.closest("button");if(!b)return;
+  if(b.id==="mrback"){close();return}
+  ensure();
+  if(b.id==="mrstop"){stopAudio();now.textContent="いま：ていし中";return}
+  if(b.dataset.bg!==undefined){
+   const k=b.dataset.bg;
+   S.niji=(k==="niji")?1:0;
+   try{applyBgmTone(k==="niji"?"rain":k);bgmEl.playbackRate=k==="niji"?1.04:(BGM_RATE[k]||1)}catch(e){}
+   try{bgmEl.volume=.5;const p=bgmEl.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
+   now.textContent="いま："+b.textContent;return}
+  if(b.dataset.vo){lastVoice=0;voiceOf(b.dataset.vo);return}
+  if(b.dataset.se){lastSfx[b.dataset.se]=0;sfx(b.dataset.se)}
+ });
+}
+{const o=renderTitleBtns;renderTitleBtns=function(step){
+ o(step);
+ const old=document.getElementById("tmus");if(old)old.remove();
+ if(step&&step!=="main")return;
+ const ti=document.getElementById("title");if(!ti)return;
+ const x=document.createElement("button");x.type="button";x.id="tmus";x.className="act";
+ x.style.cssText="position:absolute;right:max(10px,env(safe-area-inset-right));top:max(10px,env(safe-area-inset-top));padding:6px 10px;font-size:12px;z-index:3";
+ x.textContent="🎧 おんがく";
+ x.addEventListener("click",()=>{try{musicRoom()}catch(e){}});
+ ti.appendChild(x);
+}}
+
+/* ================= v67: rain tweets - hashtags, seasons, to-Bons, to-manager, meta ================= */
+const RAIN_SEASON={
+ spring:[
+  "春である。桜の花びらが島に降るさまは、虹に勝るとも劣らぬ……いや、虹のほうが上であるがな。",
+  "春の雨は、ほんのり甘い匂いがするのだ。……我輩の気のせいではないぞ。",
+  "新しい季節は、新しい始まりの季節である。管理人よ、今年も島をよろしく頼むのだぞ。"],
+ summer:[
+  "夏である！ 太陽は強いが、夕立のあとの虹は、また格別なのだ。",
+  "暑い日は、日かげで冷たいものをいただくのが至高である。……もぐボンの分まで取らぬようにな。",
+  "夏の夜空に花火が上がる島……。それが我輩の理想である。管理人よ、いつか叶えてくれ。"],
+ autumn:[
+  "秋である。柿がうまい季節なのだ。……我輩の好物は秘密だぞ。もう言ってしまったがな。",
+  "木の葉が色づくと、島がもう一つの虹をまとったようになるのだ。",
+  "実りの秋である。ボンたちにも、たくさん食べさせてやるのだぞ。"],
+ winter:[
+  "冬である。空気が澄むと、星がよく見えるのだ。てれボンが詩を書きたくなる季節でもあるな。",
+  "寒い日は、みんなで身を寄せ合うのがよいのだ。……我輩は寒くないぞ。少しも寒くないのだ。",
+  "年の瀬には、お赤飯でお祝いをするのが島の習わしである。全員、大好物なのだぞ。"]};
+const RAIN_BONS=[
+ "おこボンよ。怒るのは疲れるであろう。……だが、そなたのまっすぐさは、我輩は嫌いではないのだ。",
+ "おこボンのあの赤は、島でいちばん目立つのだ。我輩の次にな。",
+ "にこボンよ。そなたが笑うと、島全体の天気がよくなるのだぞ。本当である。",
+ "にこボンは、誰とでも友になれるのだな。……我輩にはまねできぬ芸当である。",
+ "ひょえボンよ。こわがりは、慎重ということなのだ。恥じることはないぞ。",
+ "ひょえボンが勇気を出した日は、いつも空が少し晴れるのだ。……偶然ではあるまい。",
+ "もぐボンよ。そなたの食べっぷりは、見ているだけで元気が出るのだ。感謝するのだぞ。",
+ "もぐボンの作る料理は、島一番である。……我輩の分も残しておくのだぞ。",
+ "ねむボンよ。昼寝は立派な仕事である。我輩が許すのだ。存分に寝るがよい。",
+ "ねむボンの寝顔には、天気を穏やかにする力があるのではないかと、我輩は睨んでおる。",
+ "てれボンよ。そなたの詩は、風に乗って我輩にも届いておる。……なかなか、よいのだぞ。",
+ "てれボンは、照れておる顔がいちばん愛らしいのだ。……本人には内緒であるぞ。",
+ "我輩は、おこボンとにこボンと、島の三本の柱であると思っておるのだ。……勝手にな。",
+ "ボンたちよ。我輩がいない日も、仲よくするのだぞ。……いや、少しは寂しがってもよいのだ。"];
+const RAIN_KAN=[
+ "管理人よ。今日も島に来てくれて、感謝するのだぞ。",
+ "管理人よ。そなたがボンたちを見つめる目は、とてもやさしいのだ。……我輩はそう見ておる。",
+ "管理人よ。うまくいかぬ日があってもよいのだ。雨の日があるから、虹が見えるのだぞ。",
+ "管理人よ。休むことも仕事のうちである。無理をするでないぞ。",
+ "管理人よ。そなたの島は、世界でいちばんあたたかいのだ。我輩が保証するのだぞ。",
+ "管理人よ。ボンたちは、そなたの足音を覚えておるのだ。……我輩もな。",
+ "管理人よ。もし疲れたら、空を見るがよい。我輩がそこにいるのだぞ。",
+ "管理人よ。ボンを増やすのもよいが、いまいる友を大事にするのだ。",
+ "管理人よ。今日はどんな一日であった？ 島は、いつでもそなたを待っておるのだ。",
+ "管理人よ。そなたが笑っておると、ボンたちも笑うのだ。……簡単なことであろう？"];
+const RAIN_GAME=[
+ "ボンはな、みんな頭に「BON」と書いたカチューシャをつけておるのだ。名札のようなものである。",
+ "島の天気は、そなたの時間と共に流れておるのだ。夜になれば暗くなるぞ。",
+ "ボンの立ち絵は、手で描かれたものなのだぞ。……小さな息づかいまで見えるであろう？",
+ "ボンの口ぐせの「ボン！？」は、びっくりしたときの合図なのだ。覚えておくがよい。",
+ "このゲームには、ボン達それぞれの得意な場所があるのだぞ。ボンの好みを探してみるがよい。",
+ "ゲームの中の時間は、ゆっくり流れておる。急ぐ必要はないのだ。のんびりするのが島流なのだぞ。"];
+const RAIN_TAGSRC=[[RAIN_SEASON.spring,"#春の島 #季節"],[RAIN_SEASON.summer,"#夏の島 #季節"],[RAIN_SEASON.autumn,"#秋の島 #季節"],[RAIN_SEASON.winter,"#冬の島 #お赤飯"],[RAIN_BONS,"#ボンたちへ #島の仲間"],[RAIN_KAN,"#管理人ありがとう #ひとこと"],[RAIN_GAME,"#ボン豆知識 #メタ発言"],[RAIN_DIARY,"#ボン観察日記"],[RAIN_QUOTE,"#我輩の名言"],[RAIN_SHIN,"#むかしばなし"],[RAIN_URA,"#メタ発言"],[RAIN_URA2,"#メタ発言"]];
+Object.values(RAIN_SITU).forEach(a=>RAIN_TAGSRC.push([a,"#いまの島 #つぶやき"]));
+function rainTags(t,hs){
+ for(const [a,g] of RAIN_TAGSRC)if(a.indexOf(t)>=0)return g;
+ try{if(NG_SC.some(s=>s.r===t))return "#次回作 #ボンたちの意見"}catch(e){}
+ return ["#虹","#ボン島","#開発中","#管理人ありがとう","#柿はいいぞ","#なのだぞ"][hs%6];
+}
+{const o=rainPoolSet;rainPoolSet=function(){const s=o();[].concat(RAIN_BONS,RAIN_KAN,RAIN_GAME,...Object.values(RAIN_SEASON)).forEach(x=>s.add(x));return s}}
+{const o=wander;wander=function(){
+ o();
+ try{
+  const r=R("rain");if(!r||r.sleep||r.hold||Math.random()>.02)return;
+  if(typeof popupOpen==="function"&&popupOpen())return;
+  const q=Math.random(),L=q<.3?RAIN_BONS:q<.55?RAIN_KAN:q<.85?RAIN_SEASON[season().k]:RAIN_GAME;
+  const heard=new Set((S.rtw||[]).map(x=>x.t)),un=L.filter(x=>!heard.has(x));
+  talkTo(r,pick(un.length&&Math.random()<.75?un:L),5600);
+ }catch(e){}
+}}
+
+/* ================= v68: Bon replies under rain tweets ================= */
+const BREP={
+ oko:{g:["べ、別に気になってないけど、ちゃんと読んだわよ。","あんた、また難しいこと言ってる…。","ふーん。……まあ、悪くないんじゃない？","いいね押しといたから。感謝しなさいよ。"],
+  me:["な、なによ急に！ 照れるじゃない…！","あたしのこと見てたの？ ……ありがと。"],kan:["あんたも無理しないでよね。","管理人、あたしも感謝してるわよ。"],sea:["季節なんて関係ない！ ……でも、きれいね。","寒いのも暑いのも、あたしは平気なんだから！"]},
+ niko:{g:["わー！ レインちゃんのつぶやき、すてき〜☆","いいね！ いいね！ 100回押したいな♪","にこも同じこと思ってたよ〜！","みんなに見せたくなっちゃうね！"],
+  me:["えへへ、うれしい〜！ ありがとう☆","レインちゃん、見ててくれたんだね♪"],kan:["管理人ちゃん、にこも大好きだよ〜！","みんなで島を守ろうね☆"],sea:["お祭りしたいな〜！ みんなでやろ？","季節が変わると、わくわくするね♪"]},
+ hyoe:{g:["あわわ…ぼくも読んだよ…","すごい…レインボンさん、かっこいい…","あわわ、いいね押しちゃった…","ぼくも、そう思う…かも…"],
+  me:["あわわ！ ぼく？ ……うれしい、かな…","ぼくのこと見ててくれたんだ…ありがとう…"],kan:["かんりにん、そばにいてくれて、ありがとう…","ぼく、かんりにんがいると安心する…"],sea:["あわわ、嵐はこわいけど…きれいなのは好き…","季節がかわるの、ちょっとこわいけど…楽しみ…"]},
+ mogu:{g:["おいしそうな話だぇ〜！","うち、いいね押したぇ！","もぐもぐしながら読んだぇ〜","レインしゃん、ありがとうだぇ！"],
+  me:["うちのこと？ うれしいぇ〜！","ごはん、いっしょに食べるぇ〜！"],kan:["管理人しゃん、いつもごはんありがとうだぇ！","うち、管理人しゃん大好きぇ〜"],sea:["今の季節のごはん、おいしいぇ〜！","お赤飯、たべたいぇ〜！"]},
+ nemu:{g:["ふぁ…ぼくも、いいね…","……ふぁ…いいつぶやき、ねむ…","ふぁ…よんだよ…おやすみ…","……きみもがんばってるね…ふぁ"],
+  me:["ふぁ…ぼくのこと？ ……ありがと…","ぼく、ねてても、うれしい…ふぁ"],kan:["きみ…ありがと…ふぁ","いつも…そばにいてくれて、ありがと…"],sea:["いまの季節…ぽかぽか…ふぁ","……ねむい季節…ふぁ"]},
+ tere:{g:["と、とても素敵だと思います…！","わ、私も読ませていただきました…","い、いいねを押させていただきました…","レインボンさん…すごいです…"],
+  me:["わ、私のことを…！？ あ、ありがとうございます…","うれしいです…恥ずかしいですが…"],kan:["管理人さま、私も感謝しています…！","い、いつもありがとうございます…"],sea:["季節の詩を、書きたくなります…","き、きれいな季節ですね…"]}};
+const BREP_ADDR={0:"oko",1:"oko",2:"niko",3:"niko",4:"hyoe",5:"hyoe",6:"mogu",7:"mogu",8:"nemu",9:"nemu",10:"tere",11:"tere"};
+function rainReplies(t,hs){
+ try{
+  const ids=["oko","niko","hyoe","mogu","nemu","tere"];
+  const pool=(S.rs&&S.rs.length?ids.filter(i=>R(i)||(S.met&&S.met[i])):ids);const P=pool.length?pool:ids;
+  const out=[];const tag=rainTags(t,hs);
+  const bi=RAIN_BONS.indexOf(t);
+  const mk=(id,line)=>out.push([id,line]);
+  if(bi>=0&&BREP_ADDR[bi]){const id=BREP_ADDR[bi];mk(id,pickH(BREP[id].me,hs))}
+  const kind=tag.indexOf("管理人")>=0?"kan":tag.indexOf("季節")>=0?"sea":"g";
+  const n=1+hs%3;let k=hs;
+  for(let i=0;i<n&&out.length<3;i++){const id=P[(k+i*2)%P.length];if(out.some(o=>o[0]===id))continue;mk(id,pickH(BREP[id][kind],hs+i))}
+  if(!out.length)return"";
+  const nm={oko:"おこボン",niko:"にこボン",hyoe:"ひょえボン",mogu:"もぐボン",nemu:"ねむボン",tere:"てれボン"};
+  const col={oko:"#d62828",niko:"#c68e00",hyoe:"#1f5fd6",mogu:"#1f9e6b",nemu:"#9a62d6",tere:"#e0507f"};
+  return '<div style="margin:8px 0 0 10px;padding-left:10px;border-left:3px solid var(--line);display:flex;flex-direction:column;gap:4px">'
+   +out.map(o=>'<div style="font-size:12.5px;line-height:1.5"><b style="color:'+col[o[0]]+'">'+nm[o[0]]+'</b> '+esc2(o[1])+'</div>').join("")+'</div>';
+ }catch(e){return""}
+}
+function pickH(a,h){return a[Math.abs(h)%a.length]}
 
 openTitle("main");
 setInterval(wander,4500);
