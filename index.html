@@ -4745,7 +4745,7 @@ function musicRoom(){
   if(b.dataset.bg!==undefined){
    const k=b.dataset.bg;
    S.niji=(k==="niji")?1:0;
-   try{applyBgmTone(k==="niji"?"rain":k);bgmEl.playbackRate=k==="niji"?1.04:(BGM_RATE[k]||1)}catch(e){}
+   try{window.__mrForce=1;applyBgmTone(k==="niji"?"rain":k);bgmEl.playbackRate=k==="niji"?1.04:(BGM_RATE[k]||1)}catch(e){}finally{window.__mrForce=0}
    try{bgmEl.volume=.5;const p=bgmEl.play();if(p&&p.catch)p.catch(()=>{})}catch(e){}
    now.textContent="いま："+b.textContent;return}
   if(b.dataset.vo){lastVoice=0;voiceOf(b.dataset.vo);return}
@@ -4980,6 +4980,17 @@ function backupRoom(){
 try{document.head.appendChild(e)}catch(_){}}
 {const o=renderStage;renderStage=function(){o.apply(this,arguments);try{const st=document.getElementById("stage");if(st)st.classList.toggle("hassel",!!(selId&&R(selId)))}catch(e){}}}
 
+/* ================= v71: state guards (fresh games lacked some tables) ================= */
+function guardS(){try{if(!S)return;S.gone=S.gone||{};S.met=S.met||{};S.zb=S.zb||{};S.album=S.album||[];S.letters=S.letters||[];S.ach=S.ach||{};S.warn=S.warn||{};S.diary=S.diary||[];S.call=S.call||{};S.quarrel=S.quarrel||{};S.rtw=S.rtw||[];S.st=S.st||{};S.homes=S.homes||[]}catch(e){}}
+{const o=render;render=function(){guardS();return o.apply(this,arguments)}}
+{const o=renderBook;renderBook=function(){guardS();return o.apply(this,arguments)}}
+{const o=zukanHtml;zukanHtml=function(){guardS();return o.apply(this,arguments)}}
+{const o=enterGame;enterGame=function(){const r=o.apply(this,arguments);guardS();return r}}
+guardS();
+
+/* ================= v72: the music room keeps control of the BGM tone while open ================= */
+{const o=applyBgmTone;applyBgmTone=function(k){if(document.getElementById("mrov")&&!window.__mrForce)return;return o(k)}}
+{const o=render;render=function(){if(document.getElementById("mrov")){try{guardS()}catch(e){}return}return o.apply(this,arguments)}}
 openTitle("main");
 setInterval(wander,4500);
 setInterval(()=>tick(),500);
