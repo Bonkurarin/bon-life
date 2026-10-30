@@ -4993,6 +4993,26 @@ guardS();
 /* ================= v72: the music room keeps control of the BGM tone while open ================= */
 {const o=applyBgmTone;applyBgmTone=function(k){if(document.getElementById("mrov")&&!window.__mrForce)return;return o(k)}}
 {const o=render;render=function(){if(document.getElementById("mrov")){try{guardS()}catch(e){}return}return o.apply(this,arguments)}}
+/* ================= v73: on-screen error report (for debugging) ================= */
+(()=>{
+ let box=null,n=0;const seen={};
+ function show(msg,src){
+  try{
+   const k=String(msg)+src;if(seen[k])return;seen[k]=1;n++;
+   if(!box){box=document.createElement("div");box.id="errbox";
+    box.style.cssText="position:fixed;left:8px;right:8px;top:8px;z-index:99998;background:#fff3f3;color:#7a1010;border:2px solid #d62828;border-radius:10px;padding:8px 10px;font:12px/1.5 monospace;max-height:40vh;overflow:auto;word-break:break-all";
+    box.innerHTML='<b>⚠ エラーが出たよ（この画面をスクリーンショットで教えてね）</b> <button type="button" id="errx" style="float:right;min-height:0;padding:0 8px">×</button><div id="errl"></div>';
+    document.body.appendChild(box);box.querySelector("#errx").addEventListener("click",()=>{box.remove();box=null})}
+   const l=box.querySelector("#errl");if(l.children.length<6){const d=document.createElement("div");d.textContent="・"+msg+"  ["+src+"]";l.appendChild(d)}
+  }catch(e){}
+ }
+ window.addEventListener("error",ev=>show(ev.message||"error",(ev.lineno||"")+":"+(ev.colno||"")));
+ window.addEventListener("unhandledrejection",ev=>show("Promise: "+(ev.reason&&ev.reason.message||ev.reason),""));
+ try{const st=()=>{try{return "day="+(S&&S.day)+" sel="+selId+" rs="+(S&&S.rs&&S.rs.map(r=>r.id).join(","))}catch(e){return""}};
+  window.addEventListener("error",ev=>{try{const l=document.querySelector("#errl");if(l&&!l.dataset.st){l.dataset.st=1;const d=document.createElement("div");d.textContent="状態: "+st();l.appendChild(d)}}catch(e){}});
+ }catch(e){}
+})();
+
 openTitle("main");
 setInterval(wander,4500);
 setInterval(()=>tick(),500);
