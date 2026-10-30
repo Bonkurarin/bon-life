@@ -4870,6 +4870,116 @@ function rainReplies(t,hs){
 }
 function pickH(a,h){return a[Math.abs(h)%a.length]}
 
+/* ================= v69: save-code backup + hand-drawn emoji on canvas ================= */
+const b64e=u8=>{let s="";for(let i=0;i<u8.length;i+=0x8000)s+=String.fromCharCode.apply(null,u8.subarray(i,i+0x8000));return btoa(s)};
+const b64d=s=>{const b=atob(s),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);return u};
+async function saveEncode(){
+ try{save()}catch(e){}
+ const json=localStorage.getItem(KEY)||JSON.stringify(S),u=new TextEncoder().encode(json);
+ if(window.CompressionStream){try{const cs=new CompressionStream("gzip"),w=cs.writable.getWriter();w.write(u);w.close();const buf=await new Response(cs.readable).arrayBuffer();return "BON2:"+b64e(new Uint8Array(buf))}catch(e){}}
+ return "BON1:"+b64e(u);
+}
+async function saveDecode(code){
+ code=String(code).replace(/\s+/g,"");
+ let u8,json;
+ if(code.startsWith("BON2:")){
+  if(!window.DecompressionStream)throw new Error("この端末では読み込めないコードだよ");
+  const ds=new DecompressionStream("gzip"),w=ds.writable.getWriter();w.write(b64d(code.slice(5)));w.close();
+  json=new TextDecoder().decode(await new Response(ds.readable).arrayBuffer());
+ }else if(code.startsWith("BON1:")){json=new TextDecoder().decode(b64d(code.slice(5)))}
+ else throw new Error("コードの形がちがうよ");
+ const o=JSON.parse(json);
+ if(!o||o.v!==3||!Array.isArray(o.rs)||!o.rs.length)throw new Error("セーブデータとして読めなかったよ");
+ return json;
+}
+function backupRoom(){
+ let o=document.getElementById("bkov");if(o)o.remove();
+ o=document.createElement("div");o.id="bkov";
+ o.style.cssText="position:fixed;inset:0;z-index:2000;background:var(--bg,#eaf4ff);overflow:auto;-webkit-overflow-scrolling:touch;padding:max(12px,env(safe-area-inset-top)) 12px 28px";
+ const bs='padding:10px 12px;min-height:48px;font-size:14px';
+ o.innerHTML='<div style="max-width:520px;margin:0 auto"><div style="margin-bottom:10px"><button type="button" id="bkback" class="act" style="padding:8px 14px">← タイトルにもどる</button></div>'
+ +'<h2 style="margin:6px 0 2px">💾 セーブのバックアップ</h2>'
+ +'<p style="font-size:13px;opacity:.85;margin:0 0 10px">セーブをコードにして、メモアプリなどに保存できるよ。ブラウザのデータが消えたり、別の端末で続きをしたい時は、ここに貼り付けて読み込もう。</p>'
+ +'<h3 style="margin:8px 0">① コードを作る</h3><button type="button" class="act" id="bkmake" style="'+bs+';width:100%">コードを作る</button>'
+ +'<textarea id="bkout" readonly rows="5" style="width:100%;margin-top:8px;font-size:12px;word-break:break-all" placeholder="ここにコードが出るよ"></textarea>'
+ +'<button type="button" class="act" id="bkcopy" style="'+bs+';width:100%;margin-top:8px">📋 コピーする</button>'
+ +'<h3 style="margin:18px 0 8px">② コードから読み込む</h3>'
+ +'<textarea id="bkin" rows="5" style="width:100%;font-size:12px;word-break:break-all" placeholder="ここにコードを貼り付けてね"></textarea>'
+ +'<button type="button" class="act" id="bkload" style="'+bs+';width:100%;margin-top:8px">読み込む(いまのセーブは上書きされるよ)</button>'
+ +'<p id="bkmsg" style="margin:10px 0 0;font-size:13px;min-height:1.5em"></p></div>';
+ document.body.appendChild(o);
+ const msg=t=>{o.querySelector("#bkmsg").textContent=t};
+ let armed=false;
+ o.addEventListener("click",async ev=>{
+  const b=ev.target.closest("button");if(!b)return;
+  if(b.id==="bkback"){o.remove();return}
+  if(b.id==="bkmake"){try{const c=await saveEncode();o.querySelector("#bkout").value=c;msg("コードを作ったよ！ コピーして大事に保管してね。")}catch(e){msg("作れなかったよ…")}return}
+  if(b.id==="bkcopy"){const ta=o.querySelector("#bkout");if(!ta.value){msg("先にコードを作ってね");return}
+   try{await navigator.clipboard.writeText(ta.value);msg("コピーしたよ！")}catch(e){ta.removeAttribute("readonly");ta.select();try{document.execCommand("copy");msg("コピーしたよ！")}catch(_){msg("長押しでコピーしてね")}ta.setAttribute("readonly","")}return}
+  if(b.id==="bkload"){
+   const v=o.querySelector("#bkin").value.trim();if(!v){msg("コードを貼り付けてね");return}
+   try{const json=await saveDecode(v);
+    if(!armed){armed=true;b.textContent="もう一度おすと、読み込んで上書きするよ";msg("コードは読めたよ。本当に上書きする？");return}
+    localStorage.setItem(KEY,json);msg("読み込めたよ！ 再読み込みするね…");setTimeout(()=>location.reload(),600)
+   }catch(e){armed=false;b.textContent="読み込む(いまのセーブは上書きされるよ)";msg(e.message||"読み込めなかったよ")}
+  }
+ });
+}
+{const o=renderTitleBtns;renderTitleBtns=function(step){
+ o(step);
+ const old=document.getElementById("tbak");if(old)old.remove();
+ if(step&&step!=="main")return;
+ const ti=document.getElementById("title");if(!ti)return;
+ const x=document.createElement("button");x.type="button";x.id="tbak";x.className="act";
+ x.style.cssText="position:absolute;left:50%;transform:translateX(-50%);bottom:max(14px,env(safe-area-inset-bottom));padding:6px 12px;font-size:12px;z-index:3";
+ x.textContent="💾 バックアップ";
+ x.addEventListener("click",()=>{try{backupRoom()}catch(e){}});
+ ti.appendChild(x);
+}}
+/* --- canvas emoji: hand-drawn wobble (pure-emoji strings) --- */
+(()=>{
+ if(typeof CanvasRenderingContext2D==="undefined")return;
+ const P=CanvasRenderingContext2D.prototype,ft=P.fillText,EM=/^[\p{Extended_Pictographic}‍️]{1,8}$/u,cache={};
+ function emo(text,px){
+  const k=text+"|"+px;if(cache[k])return cache[k];
+  const sz=Math.ceil(px*1.5)+6,c=document.createElement("canvas");c.width=c.height=sz;
+  const g=c.getContext("2d");g.font=px+'px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",serif';g.textAlign="center";g.textBaseline="middle";ft.call(g,text,sz/2,sz/2);
+  let seed=0;for(const ch of text)seed=(seed*31+ch.charCodeAt(0))%97;
+  const src=g.getImageData(0,0,sz,sz),dst=g.createImageData(sz,sz);
+  for(let y=0;y<sz;y++){const sh=Math.round(Math.sin(y*.45+seed)*1.3+Math.sin(y*.13+seed*2)*.8);
+   for(let x=0;x<sz;x++){const sx=x-sh;if(sx<0||sx>=sz)continue;const si=(y*sz+sx)*4,di=(y*sz+x)*4;dst.data[di]=src.data[si];dst.data[di+1]=src.data[si+1];dst.data[di+2]=src.data[si+2];dst.data[di+3]=src.data[si+3]}}
+  const o=document.createElement("canvas");o.width=o.height=sz;const og=o.getContext("2d");og.putImageData(dst,0,0);
+  const f=document.createElement("canvas");f.width=f.height=sz;const fg=f.getContext("2d");
+  fg.shadowColor="rgba(33,29,46,.85)";fg.shadowBlur=0;[[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{fg.shadowOffsetX=d[0];fg.shadowOffsetY=d[1];fg.drawImage(o,0,0)});
+  fg.shadowColor="transparent";fg.drawImage(o,0,0);
+  return cache[k]={c:f,sz};
+ }
+ P.fillText=function(text,x,y,mw){
+  try{
+   if(typeof text==="string"&&EM.test(text)){
+    const m=/(\d+(?:\.\d+)?)px/.exec(this.font),px=m?Math.round(+m[1]):24,e=emo(text,px),w=e.sz;
+    let dx=x-w/2;if(this.textAlign==="left"||this.textAlign==="start")dx=x-(w-px)/2-px*.0;else if(this.textAlign==="right"||this.textAlign==="end")dx=x-w+(w-px)/2;
+    let dy=y-w/2;const b=this.textBaseline;if(b==="alphabetic"||b==="ideographic")dy=y-px*.35-w/2;else if(b==="top"||b==="hanging")dy=y+px*.5-w/2;else if(b==="bottom")dy=y-px*.5-w/2;
+    this.drawImage(e.c,dx,dy);return;
+   }
+  }catch(err){}
+  return ft.apply(this,arguments);
+ };
+})();
+
+/* ================= v70: make the selected Bon obvious ================= */
+{const e=document.createElement("style");e.textContent=
+".res.sel{z-index:60!important}"
++".res.sel .bob{filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 7px var(--accent,#ff6b4a))}"
++".res.sel::before{top:auto!important;bottom:12px!important;height:18px!important;border:3px solid var(--accent,#ff6b4a)!important;background:rgba(255,255,255,.4);box-shadow:0 0 0 2px #fff}"
++".res.sel::after{content:'▼';position:absolute;left:50%;top:-20px;transform:translateX(-50%);font-size:20px;line-height:1;color:var(--accent,#ff6b4a);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;animation:selb .9s ease-in-out infinite;pointer-events:none}"
++"@keyframes selb{50%{transform:translate(-50%,6px)}}"
++".res.sel .tag{font-size:13px;font-weight:800;box-shadow:0 0 0 2px #fff,0 0 0 4px var(--accent,#ff6b4a)}"
++"#stage.hassel .res:not(.sel){opacity:.75}"
++"@media (prefers-reduced-motion:reduce){.res.sel::after{animation:none}}";
+try{document.head.appendChild(e)}catch(_){}}
+{const o=renderStage;renderStage=function(){o.apply(this,arguments);try{const st=document.getElementById("stage");if(st)st.classList.toggle("hassel",!!(selId&&R(selId)))}catch(e){}}}
+
 openTitle("main");
 setInterval(wander,4500);
 setInterval(()=>tick(),500);
