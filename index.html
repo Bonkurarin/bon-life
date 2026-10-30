@@ -4656,6 +4656,9 @@ function rampRate(to){
  }catch(e){o(key)}
 }}
 
+/* ================= v64: BGM speed/pitch spread toned down ================= */
+Object.assign(BGM_RATE,{oko:1.05,niko:1.1,hyoe:.93,mogu:.96,nemu:.89,tere:.93,rain:1});
+
 openTitle("main");
 setInterval(wander,4500);
 setInterval(()=>tick(),500);
