@@ -1291,7 +1291,7 @@ function zukanHtml(){
  const cards=ids.map(id=>{
   const c=CAST[id],r=R(id)||(S.gone[id]&&S.gone[id].r);
   if(!S.met[id])return '<div class="zk" style="opacity:.55"><b>？？？</b><span>まだ会っていない</span></div>';
-  const b=r?r.bond:(S.zb&&S.zb[id])||0;
+  const b=S.dbgAll?100:(r?r.bond:(S.zb&&S.zb[id])||0);
   const q='<span style="color:var(--muted)">？？？</span>';
   known++;
   const rows=[
@@ -3433,7 +3433,7 @@ document.getElementById("tbtns").addEventListener("click",ev=>{
 /* ================= v35: rain talks more (Bonstagram pace) ================= */
 {const o=wander;wander=function(){
  o();
- const r=R("rain");if(!r||r.sleep||r.hold||Math.random()>.12)return;
+ const r=R("rain");if(!r||r.sleep||r.hold||Math.random()>.075)return;
  const heard=new Set((S.rtw||[]).map(x=>x.t));
  let pool=[].concat(RAIN_META,RAIN_META2,(typeof rainBackPool==="function"?rainBackPool():[]));
  const fresh=pool.filter(t=>!heard.has(t));
@@ -4110,15 +4110,15 @@ nijiApply();
  if(r&&r.bond>=100&&!S.niji&&!S.nijiAsk&&!popupOpen()){
   S.nijiAsk=S.day;
   talkTo(r,"……管理人よ。一つ、許したいことがある",4500);
-  setTimeout(()=>{const shown=askBox("🌈 レインボンが、少し照れくさそうに切り出した。「……にじボンと呼ぶのを許そう。『にじ』のほうが、その、格好がつくであろう？」",[
+  setTimeout(()=>{const shown=askBox("🌈 レインボンが、少し照れくさそうに切り出した。「……管理人よ、打ち明けたいことがある。我輩の本当の名は『にじボン』なのだ。『レインボン』と名乗っておったのは、横文字のほうが格好いいと思ったからでな……。これからは、にじボンと呼んでくれぬか？」",[
    {l:"✨ にじボン、と呼ぶ",f:()=>nijiOn()},
    {l:"🌈 かっこいいよ、にじボン",f:()=>nijiOn(true)}]);if(!shown)S.nijiAsk=0},900);
  }
 }}
 function nijiOn(extra){
  S.niji=S.day;nijiApply();
- const r=R("rain");if(r){r.joy=clamp(r.joy+20);setX(r,"happy",6000);talkTo(r,extra?"ふ、ふふ……そう言われると、悪い気はせぬな！":"うむ！ 今日から我輩は『にじボン』である！",5200)}
- log("🌈 「にじボン」と呼ぶことを、許してもらった。");
+ const r=R("rain");if(r){r.joy=clamp(r.joy+20);setX(r,"happy",6000);talkTo(r,extra?"ふ、ふふ……格好いいと言われると、悪い気はせぬな！ ずっと言えなかったのだ。":"うむ……ありがとう。やっと言えたのだ。今日から我輩は『にじボン』である！",5200)}
+ log("🌈 レインボンが本当の名前「にじボン」を打ち明けてくれた。");
  S.album=S.album||[];S.album.unshift({d:S.day,e:"🌈",t:"にじボンと呼ぶことを、許してもらった。"});
  try{renderStage()}catch(e){}
 }
@@ -4383,9 +4383,20 @@ function dbgUnlockAll(){
  const have=new Set(S.rtw.map(x=>x.t));let n=0;
  rainPoolSet().forEach(t=>{if(!have.has(t)){S.rtw.push({t,d:S.day||1});n++}});
  try{if(typeof NG_SC!=="undefined")NG_SC.forEach(s=>{if(!have.has(s.r)&&!S.rtw.some(x=>x.t===s.r)){S.rtw.push({t:s.r,d:S.day||1});n++}})}catch(e){}
+ try{
+  S.dbgAll=true;
+  S.ach=S.ach||{};ACH.forEach(x=>{if(!S.ach[x.id])S.ach[x.id]=S.day||1});
+  S.met=S.met||{};S.zb=S.zb||{};Object.keys(CAST).forEach(id=>{S.met[id]=1;if(!S.zb[id])S.zb[id]=100});
+  S.album=S.album||[];
+  const known=[["⛈️","嵐の夜、みんなで身を寄せ合った。"],["🔨","嵐の前に、島を補強して回った。"],["⛄","みんなで大きな雪だるまを作った。"],["🎪","みんなでお祭りをした(うたの夜)。"],["🍡","みんなで屋台のお祭りをした。"]];
+  known.forEach(k=>{if(!S.album.some(x=>x.t===k[1]))S.album.push({d:S.day||1,e:k[0],t:k[1]})});
+  let i=1;while(new Set(S.album.map(x=>x.t)).size<60){S.album.push({d:S.day||1,e:"🔓",t:"【デバッグ】アルバムの見本 "+(i++)})}
+  (S.letters||[]).forEach(l=>{l.read=true});
+  bookDirty=true;
+ }catch(e){}
  try{save()}catch(e){}
  try{if(typeof render==="function")render()}catch(e){}
- dbgOverlay("🌈 デバッグモード。ぜんぶのつぶやきを開放したぞ！(+"+n+"件 / 合計"+S.rtw.length+"件)",false);
+ dbgOverlay("🌈 デバッグモード。ぜんぶのつぶやきを開放したぞ！(つぶやき+"+n+"件 / 合計"+S.rtw.length+"件)。ボンブックも、ぜんぶ開いたぞ！",false);
 }
 function dbgHitLogo(ev){
  try{
@@ -4434,6 +4445,216 @@ function bonstaStandalone(){
  o.querySelector("#bsback").addEventListener("click",()=>{o.remove();try{sfx("tap")}catch(e){}});
  o.scrollTop=0;
 }
+
+/* v59: レインボンのつぶやき追加(観察日記・名言・状況連動) */
+const RAIN_DIARY=[
+"【観察日記】おこボンは、怒っておるときほど、頬が丸くなるのだ。……本人には言わぬがな。愛らしいのだぞ。",
+"【観察日記】おこボンは、朝がいちばん機嫌がよい。島の真ん中で、胸をはって空を見ておる。我輩の席を取るでないぞ。",
+"【観察日記】にこボンは、誰かが沈んでおると、必ず先に気づくのだ。声をかける前に、隣に座っておる。……見習いたいものである。",
+"【観察日記】にこボンの「だいじょうぶ！」には、不思議な力があるのだ。言われた側が、本当にだいじょうぶな気になるのだぞ。",
+"【観察日記】ひょえボンは、物音がするたびに、まず我輩の後ろに隠れるのだ。……盾の役目も、悪くはない。",
+"【観察日記】ひょえボンは、こっそり縫い物をしておる。針先は震えておるが、縫い目は恐ろしいほど真っ直ぐなのだぞ。",
+"【観察日記】もぐボンは、腹の虫の機嫌で一日を語れるのだ。「今日は、ぐう、が三回」などと言ってくるのだぞ。",
+"【観察日記】もぐボンの畑は、日ごとに規模が拡大しておる。……いずれ、島の半分が畑になるやもしれぬ。",
+"【観察日記】ねむボンは、立ったまま寝る技を会得しつつあるのだ。……いや、会得しておる。すでに三度見たのだぞ。",
+"【観察日記】ねむボンは、起きておる時間のほうが、むしろ稀少なのだ。……稀少ゆえに、尊いとも言えるな。",
+"【観察日記】てれボンは、褒められると三秒ほど固まるのだ。その後、顔だけが先に赤くなるのだぞ。観察のしがいがある。",
+"【観察日記】てれボンは、詩をあちこちに置いておる。我輩の足元にも、一枚あった。……読んだ。良い詩であった。",
+"【観察日記】七人を眺めておるとな、同じ空の下でも、見ておる景色が少しずつ違うのだと分かるのだ。それが、また愉快である。",
+"【観察日記】管理人よ、おぬしの観察も、ひそかに続けておるのだぞ。……記録の中身は、秘密である。"
+];
+const RAIN_QUOTE=[
+"「虹とは、雨が最後に見せる優しさである。」……我輩の名言である。メモを取ってもよいぞ。",
+"「腹が減っては、名言も浮かばぬ。」……もぐボンを見ていて、悟ったのだ。",
+"「眠りとは、明日への小さな虹である。」……ねむボンには、聞かせぬほうがよいな。起こしてしまう。",
+"「怒りは、燃えさかる炎であるが、その熱でおにぎりも温まる。」……我輩、今のは自信作である！",
+"「臆病とは、世界の音を誰より丁寧に聞くということだ。」……ひょえボンに伝えてやりたい。",
+"「恥じらいは、言葉にならぬ詩である。」……てれボンの背中を見ておって、浮かんだのだ。",
+"「友とは、同じ雨に濡れ、同じ虹を見上げる者である。」……良い言葉であろう？",
+"「一日が終わる時、人は少しだけ詩人になる。」……夕暮れの島は、まこと見事なのだ。",
+"「名言とは、言った者がどれだけ堂々としておるかで決まる。」……堂々である！ 我輩は！",
+"「柿は、秋の恵みであり、我輩の恵みでもある。」……意味は、あとで考えるのだ。",
+"「迷ったら、まず一歩。それでも迷ったら、おにぎりである。」……もぐボン理論である。",
+"「晴れも雨も、虹の下ごしらえである。」……天気をいじる者の戯れ言ではあるがな。",
+"「ほんとうに強い者は、ありがとうを先に言える。」……我輩も、見習おう。",
+"「空は広い。されど、島の上の空は、ここだけである。」……我輩の持論なのだ。"
+];
+const RAIN_SITU={
+ quarrel:[
+  "ケンカか……。我輩の出番ではないが、胸がちくりとするのだ。管理人よ、あとは任せたぞ。",
+  "言い合いが聞こえるな。……雨になる前に、仲直りしてもらいたいものである。",
+  "ケンカというものは、止めるより、聞いてやるほうが効くこともあるのだ。……管理人よ、聞いてやるがよい。"],
+ rain:[
+  "雨である。……我輩のせいではないぞ。たぶん、であるが。",
+  "雨の音は、落ち着くのだ。……ひょえボンが怖がっておらねばよいが。",
+  "雨があがれば虹が出る。我輩は、その順番を信じておるのだ。"],
+ hungry:[
+  "腹の虫が鳴いておる者がおるようだな。……管理人よ、聞こえておるか？",
+  "誰かの腹が、島中に響いておるのだ。……おにぎりを所望する！",
+  "空腹は、名言の天敵なのだ。……早めに何か与えてやるがよい。"],
+ sad:[
+  "元気のない者がおるな。……我輩が慰めたいところだが、どうやら、管理人の出番なのだ。",
+  "さびしそうな顔をしておる者がおる。……声をかけてやるだけでも、違うのだぞ。",
+  "沈んだ心にも、虹は差す。……ただし、手を貸してくれる誰かが必要なのだ。"],
+ sleep:[
+  "寝息が聞こえるな。……島が静かなのは、良いものである。",
+  "眠っておる者を起こすのは、無粋である。我輩は、遠くから見守るのみ。",
+  "ぐっすり眠れるのは、安心しておる証である。……管理人の功績であるぞ。"],
+ happy:[
+  "今日は、みんな機嫌がよいな。……こういう日は、写真に残したくなるのだ。",
+  "島に笑い声が満ちておる。……何より、である。",
+  "全員が穏やかである。……この島の平和を、少しだけ誇ってよいと思うのだ。"],
+ night:[
+  "夜の島は、星がよく見えるのだ。……我輩、実は星も好きなのである。",
+  "静かな夜である。……虹は昼のものだが、夜は夜の詩がある。",
+  "夜更かしは、ほどほどにするのだぞ。……我輩が言える立場ではないがな。"],
+ warn:[
+  "誰かが、遠くを見ておるな。……行きたい場所が、あるのかもしれぬ。",
+  "島を出たそうな顔をしておる者がおる。……引き留めるか、送り出すか、考えどころなのだ。"],
+ fine:[
+  "今日もよい天気である。……虹の出番はなさそうだが、それもまた平和。",
+  "晴れておると、ボンたちの色がよく映えるのだ。……我輩の色は、特に映える。"]
+};
+[RAIN_DIARY,RAIN_QUOTE].forEach(a=>a.forEach(l=>{RAIN_META.push(l);VOICE.rain.solo.push(l)}));
+Object.values(RAIN_SITU).forEach(a=>a.forEach(l=>{RAIN_META.push(l)}));
+function rainSituKey(){
+ try{
+  const rs=S.rs.filter(r=>r.id!=="rain");
+  if(S.quarrel&&Object.keys(S.quarrel).length)return "quarrel";
+  if(S.warn&&Object.keys(S.warn).some(k=>S.warn[k]))return "warn";
+  if(rs.some(r=>r.hunger<30))return "hungry";
+  if(rs.some(r=>r.joy<30))return "sad";
+  if(S.weather==="rain")return "rain";
+  if(rs.some(r=>r.sleep))return "sleep";
+  if(rs.length&&rs.every(r=>r.joy>=80))return "happy";
+  if(isNight())return "night";
+  return "fine";
+ }catch(e){return null}
+}
+{const o=wander;wander=function(){
+ o();
+ try{
+  const r=R("rain");if(!r||r.sleep||r.hold||Math.random()>.022)return;
+  if(typeof popupOpen==="function"&&popupOpen())return;
+  const k=rainSituKey();if(!k||!RAIN_SITU[k])return;
+  const heard=new Set((S.rtw||[]).map(x=>x.t));
+  const L=RAIN_SITU[k],un=L.filter(x=>!heard.has(x));
+  talkTo(r,pick(un.length&&Math.random()<.7?un:L),5600);
+ }catch(e){}
+}}
+
+/* ================= v60: smartphone comfort ================= */
+{const e=document.createElement("style");e.textContent="@media (max-width:600px){"
++"body{font-size:16px}"
++".stage{height:clamp(270px,40vh,380px)!important}"
++".res{width:54px}.res .bob{width:54px;height:100px}"
++".res::before{content:'';position:absolute;left:-10px;right:-10px;top:-8px;bottom:-6px}"
++".res .tag{font-size:12px;padding:3px 7px}"
++".card .act{min-height:56px!important;font-size:13px!important;padding:8px 0!important;white-space:nowrap!important;line-height:1.25}"
++".item{min-height:58px!important;font-size:14px}"
++"button{min-height:44px}"
++"#quick button{min-width:52px;min-height:52px;font-size:12px}"
++".callbox button,.askbox button,.pop button{min-height:48px;font-size:15px}"
++"#log,.log,.logline{font-size:14px;line-height:1.6}"
++"#pz{min-height:40px;font-size:13px}"
++"img,canvas{max-width:100%}"
++".pop,.popup,.modal,.sheet{max-width:calc(100vw - 20px);max-height:88vh;overflow-y:auto;overflow-x:hidden}"
++"body{overflow-x:hidden}}";
+try{document.head.appendChild(e)}catch(_){}}
+
+/* ================= v61: per-Bon BGM timbre ================= */
+Object.assign(BGM_RATE,{oko:1.08,niko:1.16,hyoe:.9,mogu:.94,nemu:.86,tere:.9,rain:1});
+const BGM_TONE={
+ oko:[["highshelf",3000,8],["peaking",5500,3,1.2]],
+ niko:[["highshelf",3000,9],["peaking",5500,4,1.2]],
+ hyoe:[["lowpass",900,0,.7]],
+ mogu:[["lowpass",2400,0,.7],["lowshelf",220,4]],
+ nemu:[["highpass",450,0,.7],["peaking",2600,7,3],["lowpass",6000,0,.7]],
+ tere:[["highshelf",3000,7],["peaking",5000,3,1.2]],
+ rain:[["highshelf",3200,6],["peaking",5000,3,1.2]]};
+let bgmSrc=null,bgmNodes=[],bgmToneFor=null;
+function applyBgmTone(key){
+ try{
+  if(!AC||!bgmEl||!AC.createMediaElementSource)return;
+  if(!bgmSrc){bgmSrc=AC.createMediaElementSource(bgmEl);bgmSrc.connect(AC.destination)}
+  if(bgmToneFor===key)return;bgmToneFor=key;
+  try{bgmSrc.disconnect()}catch(e){}
+  bgmNodes.forEach(n=>{try{n.disconnect()}catch(e){}});bgmNodes=[];
+  let prev=bgmSrc;
+  (BGM_TONE[key]||[]).forEach(([ty,f,g,q])=>{const n=AC.createBiquadFilter();n.type=ty;n.frequency.value=f;n.gain.value=g||0;if(q)n.Q.value=q;prev.connect(n);prev=n;bgmNodes.push(n)});
+  prev.connect(AC.destination);
+ }catch(e){}
+}
+{const o=render;render=function(){o();try{applyBgmTone(selId||"")}catch(e){}}}
+document.addEventListener("pointerdown",()=>{try{applyBgmTone(selId||"")}catch(e){}},{passive:true});
+
+/* ================= v62: per-Bon BGM arrangement (echo / tremolo) ================= */
+const BGM_FX={ /* tr:[Hz,depth] ec:[sec,feedback,wet] */
+ oko:{tr:[4.2,.16]},
+ niko:{tr:[6,.2],ec:[.11,.2,.18]},
+ hyoe:{tr:[5.5,.1],ec:[.19,.35,.3]},
+ mogu:{ec:[.13,.2,.16]},
+ nemu:{ec:[.38,.4,.32]},
+ tere:{ec:[.26,.3,.26]},
+ rain:{ec:[.3,.3,.2]}};
+let bgmFxNodes=[],bgmFxOsc=[];
+applyBgmTone=function(key){
+ try{
+  if(!AC||!bgmEl||!AC.createMediaElementSource)return;
+  if(!bgmSrc){bgmSrc=AC.createMediaElementSource(bgmEl);bgmSrc.connect(AC.destination)}
+  if(bgmToneFor===key)return;bgmToneFor=key;
+  try{bgmSrc.disconnect()}catch(e){}
+  bgmNodes.concat(bgmFxNodes).forEach(n=>{try{n.disconnect()}catch(e){}});bgmFxOsc.forEach(o=>{try{o.stop()}catch(e){}});
+  bgmNodes=[];bgmFxNodes=[];bgmFxOsc=[];
+  let prev=bgmSrc;
+  (BGM_TONE[key]||[]).forEach(([ty,f,g,q])=>{const n=AC.createBiquadFilter();n.type=ty;n.frequency.value=f;n.gain.value=g||0;if(q)n.Q.value=q;prev.connect(n);prev=n;bgmNodes.push(n)});
+  const fx=BGM_FX[key]||{};
+  if(fx.tr){const g=AC.createGain();g.gain.value=1-fx.tr[1];const l=AC.createOscillator(),d=AC.createGain();l.frequency.value=fx.tr[0];d.gain.value=fx.tr[1];l.connect(d);d.connect(g.gain);l.start();prev.connect(g);prev=g;bgmFxNodes.push(g,d);bgmFxOsc.push(l)}
+  prev.connect(AC.destination);
+  if(fx.ec){const dl=AC.createDelay(1),fb=AC.createGain(),wet=AC.createGain();dl.delayTime.value=fx.ec[0];fb.gain.value=fx.ec[1];wet.gain.value=fx.ec[2];prev.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(AC.destination);bgmFxNodes.push(dl,fb,wet)}
+ }catch(e){}
+};
+bgmToneFor=null;
+
+/* ================= v63: stronger BGM arrangement + smooth switching ================= */
+Object.assign(BGM_RATE,{oko:1.12,niko:1.22,hyoe:.84,mogu:.92,nemu:.78,tere:.86,rain:1});
+Object.assign(BGM_TONE,{
+ oko:[["highshelf",3000,12],["peaking",5500,5,1.2]],
+ niko:[["highshelf",3000,14],["peaking",5500,6,1.2]],
+ hyoe:[["lowpass",700,0,.9]],
+ mogu:[["lowpass",1900,0,.8],["lowshelf",220,7]],
+ nemu:[["highpass",600,0,.8],["peaking",2600,11,3.5],["lowpass",5500,0,.8]],
+ tere:[["highshelf",3000,11],["peaking",5000,5,1.2]],
+ rain:[["highshelf",3200,9],["peaking",5000,4,1.2]]});
+Object.assign(BGM_FX,{
+ oko:{tr:[4.2,.3]},
+ niko:{tr:[6,.35],ec:[.11,.3,.3]},
+ hyoe:{tr:[5.5,.2],ec:[.19,.45,.5]},
+ mogu:{ec:[.13,.3,.3]},
+ nemu:{ec:[.38,.5,.5]},
+ tere:{ec:[.26,.42,.42]},
+ rain:{ec:[.3,.4,.34]}});
+let rampT=null;
+function rampRate(to){
+ if(rampT)clearInterval(rampT);
+ rampT=setInterval(()=>{try{
+  const c=bgmEl.playbackRate,d=to-c;
+  if(Math.abs(d)<.01){bgmEl.playbackRate=to;clearInterval(rampT);rampT=null}else bgmEl.playbackRate=c+d*.12}catch(e){clearInterval(rampT)}},80);
+}
+{const o=render;render=function(){
+ let prev=null;try{if(bgmEl)prev=bgmEl.playbackRate}catch(e){}
+ o();
+ try{
+  if(bgmEl&&prev!==null){const to=bgmEl.playbackRate;if(Math.abs(to-prev)>.01){bgmEl.playbackRate=prev;rampRate(to)}}
+ }catch(e){}
+}}
+{const o=applyBgmTone;applyBgmTone=function(key){
+ if(bgmToneFor===key||!bgmSrc)return o(key);
+ try{
+  const v=isNight()?.18:.35;let k=0;
+  const dn=setInterval(()=>{k++;try{bgmEl.volume=Math.max(0,v*(1-k/4))}catch(e){}if(k>=4){clearInterval(dn);o(key);let j=0;const up=setInterval(()=>{j++;try{bgmEl.volume=Math.min(v,v*j/5)}catch(e){}if(j>=5)clearInterval(up)},70)}},50);
+ }catch(e){o(key)}
+}}
 
 openTitle("main");
 setInterval(wander,4500);
