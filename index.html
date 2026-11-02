@@ -5701,7 +5701,7 @@ const PATIMG={"oko": "data:image/webp;base64,UklGRuabAABXRUJQVlA4WAoAAAAQAAAANwE
    const dx=ev.clientX-lx,dy=ev.clientY-ly;lx=ev.clientX;ly=ev.clientY;
    acc+=Math.hypot(dx,dy);img.classList.toggle("w",Math.floor(acc/18)%2===0);
    if(acc<140)return;
-   acc=0;strokes++;
+   acc=0;strokes++;S.st=S.st||{};S.st.strk=(S.st.strk||0)+1;
    const h=document.createElement("span");h.className="ph";h.textContent=pick(["💗","💕","✨","🌸"]);
    const rc=img.getBoundingClientRect();h.style.left=(rc.left+rc.width*(.25+Math.random()*.5))+"px";h.style.top=(rc.top+rc.height*(.1+Math.random()*.3))+"px";
    ov.appendChild(h);setTimeout(()=>h.remove(),1300);
@@ -5735,6 +5735,16 @@ const PATIMG={"oko": "data:image/webp;base64,UklGRuabAABXRUJQVlA4WAoAAAAQAAAANwE
   rain:[["よく聞けい！ 我輩の演説を聞いてゆくがよい！",[["聞くよ",{j:9,b:3,t:"わっはっは！ うむ！"}],["すごーい！",{j:10,b:3,t:"じゃじゃーん！"}],["今日は遠慮する",{j:-3,t:"うむ…仕方あるまい。"}]]],
         ["お主よ、今日は我輩と虹を見に行かぬか？",[["行こう！",{j:12,b:4,t:"うむ！ 参るぞ！"}],["またこんど",{j:-2,t:"うむ…"}]]]]
  };
+ const MORE={
+  oko:[["ねえ、アタシ今日、ちょっと走ってきていい？",[["いいよ、行っておいで",{j:6,b:2,t:"当然よ！"}],["いっしょに走る",{j:10,b:4,t:"…遅れないでよね！"}],["今日は休もう",{j:-3,t:"むぅ…"}]]],["…これ、ひろったの。あげてもいい？ べ、別に深い意味はないわよ！",[["ありがとう",{j:8,b:4,t:"ふ、ふん！"}],["おこが持ってて",{j:4,b:2,t:"…そう。"}]]],["アタシのこと、ちゃんと見てた？",[["見てたよ",{j:8,b:3,t:"…ならいいのよ。"}],["ごめん、見てなかった",{j:-4,t:"…ばか。"}]]]],
+  niko:[["今日のおやつ、みんなで食べたいな〜♪ いい？",[["いいよ！",{h:12,j:8,b:3,t:"やったぁ☆"}],["あとでね",{j:-2,t:"はーい…"}]]],["新しい歌つくったの！ 聞いて聞いて〜☆",[["聞かせて",{j:10,b:3,t:"えへへ、いくよ〜♪"}],["あとで聞くね",{j:-2,t:"ちぇー…"}]]],["ねぇ、にこのこと…すき？ なんてね〜☆",[["すきだよ",{j:10,b:4,t:"きゃー☆"}],["みんなすきだよ",{j:7,b:3,t:"えへへ、わたしも〜♪"}]]]],
+  hyoe:[["あのね…ボン、ひとりだとちょっとこわいの…そばにいて、いい…？",[["いいよ",{j:10,b:4,t:"ありがとう…あんしん…"}],["みんなといっしょにいてね",{j:2,b:1,t:"うん…がんばる…"}]]],["おほしさま、いっしょに見たいな…だめかな…？",[["見よう",{j:10,b:4,t:"わぁ…きれい…"}],["またこんど",{j:-2,t:"うん…あわわ…"}]]],["ボン、おてつだい…できるかな…？",[["おねがいするね",{j:9,b:3,t:"がんばる…！"}],["ゆっくりでいいよ",{j:5,b:2,t:"うん…ありがとう…"}]]]],
+  mogu:[["みんなでおにぎりつくりたいな〜…いい〜？",[["いいよ",{h:15,j:8,b:3,t:"わーい〜！"}],["あとでね",{j:-2,t:"うぅ〜…"}]]],["ここのお花、たべられるかな〜…",[["たべちゃだめ",{j:-1,b:1,t:"は〜い…"}],["きれいだから見るだけね",{j:3,b:2,t:"うん〜…きれい〜"}]]],["うち、まんぷくだから…ちょっとお昼寝してもいい〜？",[["おやすみ",{j:6,b:2,t:"ありがとう〜…むにゃ"}],["おさんぽしよう",{j:8,b:3,t:"いいね〜！"}]]]],
+  nemu:[["…ぼく、ひなたぼっこしたい…",[["いいよ",{j:7,b:2,t:"…ありがと…"}],["いっしょにしよう",{j:10,b:4,t:"…うれしい…"}]]],["…むかし、ねてた場所…見に行ってもいい…？",[["いってらっしゃい",{j:6,b:2,t:"…ん…"}],["気をつけてね",{j:7,b:3,t:"…ありがと…"}]]],["…おなかすいた…けど、ねむい…どっち…",[["ごはんが先",{h:20,j:4,b:1,t:"…もぐ…"}],["ねむが先",{j:6,b:2,t:"…ふぁ…"}]]]],
+  tere:[["あ、あの…きょう、ちゃんとできたこと…ほめて、もらえますか…？",[["えらいね",{j:10,b:4,t:"あ、ありがとうございますっ…！"}],["がんばったね",{j:9,b:3,t:"うれしいです…！"}]]],["お、お花をつんできたんです…かざってもいいですか…？",[["かざろう",{j:9,b:3,t:"よかった…！"}],["だれかにあげよう",{j:8,b:4,t:"は、はいっ…！"}]]],["あの…わたし、みんなと上手にお話しできてますか…？",[["できてるよ",{j:10,b:4,t:"…ほっとしました…"}],["少しずつでいいよ",{j:7,b:3,t:"はいっ…がんばります…"}]]]],
+  rain:[["お主、我輩の新しい決めポーズを見るがよい！",[["かっこいい！",{j:10,b:3,t:"じゃじゃーん！ 当然である！"}],["もう一回やって",{j:8,b:3,t:"よかろう！ わっはっは！"}]]],["今日の空の色について、一席ぶってもよいか？",[["聞かせて",{j:9,b:3,t:"うむ！ よく聞けい！"}],["短めでお願い",{j:5,b:2,t:"む…善処しよう。"}]]],["我輩、ちと小腹がすいたのだ。ペロペロキャンディ…いや、何でもよいぞ！",[["おやつにしよう",{h:15,j:8,b:3,t:"うむ！ 感謝するぞ！"}],["夕ごはんまで我慢",{j:-3,t:"むむ…やむを得ぬ。"}]]]]
+ };
+ Object.keys(MORE).forEach(k=>{if(ASKS[k])ASKS[k].push(...MORE[k])});
  const S_asks=[];let askAcc=0,askId=0;
  function drawAsk(a){
   const c=CAST[a.id];
@@ -5751,6 +5761,7 @@ const PATIMG={"oko": "data:image/webp;base64,UklGRuabAABXRUJQVlA4WAoAAAAQAAAANwE
     log(c.name+"のおねがいに「"+a.ch[i][0]+"」と答えた。"+(ef.b?"（なかよし+"+ef.b+"）":""));
     try{sfx(ef.j>=0?"happy":"tap")}catch(e){}
    }
+   S.st=S.st||{};S.st.ask=(S.st.ask||0)+1;
    removeAsk(a.k);save();
   });
   box.appendChild(el);
@@ -5777,6 +5788,154 @@ const PATIMG={"oko": "data:image/webp;base64,UklGRuabAABXRUJQVlA4WAoAAAAQAAAANwE
    askAcc+=1;if(askAcc>=70+Math.floor(Math.random()*40)){askAcc=0;newAsk()}
   }catch(e){}
  },1000);
+})();
+
+
+/* ================= v88: 見守り強化(日記・会話・天気・留守番・ガイド・実績) ================= */
+(function(){
+ const st=document.createElement("style");
+ st.textContent=`#awayov{position:fixed;inset:0;z-index:99998;background:rgba(40,30,60,.5);display:flex;align-items:center;justify-content:center;padding:16px}
+ #awayov .ab{background:var(--paper,#fff);color:var(--ink,#2b2540);border-radius:18px;padding:16px;width:min(460px,100%);max-height:80vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,.3)}
+ #awayov h3{margin:0 0 6px;font-size:17px}#awayov p{margin:6px 0;font-size:14px;line-height:1.6}
+ #awayov button{display:block;margin:12px auto 0;padding:9px 28px;border-radius:14px;border:none;background:#ff8fb5;color:#fff;font-weight:700;font-size:14px;cursor:pointer}`;
+ document.head.appendChild(st);
+
+ /* --- チュートリアル・ヒント・ガイド --- */
+ try{TUT.length=0;TUT.push(
+  "はじめまして！ わたしは、この島のガイドのボンだよ。",
+  "ここは、人間の想像力から生まれた精霊――ボンたちの島。あなたは、島の管理人さん！",
+  "この島は、ボンたちを『見守る』島だよ。ごはんもあそびも、ボンたちが自分でやるから、ゆっくり眺めていてね。",
+  "ときどき、ボンが吹き出しで『おねがい』をしてくるよ。画面の下に出る選択肢から、返事を選んであげてね。",
+  "ボンを選ぶと『なでなで』ができるよ。立ち絵が大きくなるから、指でスライドしてなでてあげてね。",
+  "ボンは、さみしいと島を出ていっちゃうこともあるの。出ていく前には、サインを出すから、見のがさないでね。",
+  "画面の下の『ボンボンブック』には、にっき・てがみ・じっせき・ずかん・アルバムがあるよ。",
+  "それじゃあ、あとはおまかせ！ わからなくなったら、ブックの『ガイド』で、また会えるよ。")}catch(e){}
+ try{newGoal=function(){S.goal=null};renderGoal=function(){const el=document.getElementById("goal");if(el)el.hidden=true}}catch(e){}
+ try{guideTip=function(){
+  const tips=[];
+  const hungry=S.rs.filter(r=>r.hunger<40),sad=S.rs.filter(r=>r.joy<40);
+  if(hungry.length)tips.push(CAST[hungry[0].id].name+"がおなかをすかせているみたい。ほかのボンが、そのうち気づいてくれるかも。");
+  if(sad.length)tips.push(CAST[sad[0].id].name+"が元気ないみたい。なでなでしてあげるといいかも。");
+  const w=Object.keys(S.warn||{});
+  if(w.length)tips.push(CAST[w[0]].name+"が、島を出ていきそうなそぶりを見せてるよ。なでなでや、おねがいへの返事で元気づけてあげて。");
+  tips.push("画面の下に出る『おねがい』には、ちゃんと返事をしてあげると、なかよし度が上がるよ。");
+  tips.push("ボンを選んで『なでなで』を押すと、立ち絵アップでなでられるよ。");
+  tips.push("なかよし度の上限は、日がたつにつれて広がっていくよ。いまの上限は"+bondCap()+"だよ。");
+  tips.push("ひょえボンは、管理人さんがそばにいると、少し勇気が出るんだって。");
+  tips.push("夜は、ひょえボンが一人だと、こわがっちゃうよ。");
+  tips.push("しばらく島をあけても大丈夫。帰ってきたら、留守のあいだのできごとを教えてあげるよ。");
+  return pick(tips)}}catch(e){}
+ {const o=guideHtml;guideHtml=function(){
+  return o.apply(this,arguments)+'<div class="soon" style="margin-top:10px;border-style:solid;font-size:13px;line-height:1.7"><b>🌴 見守りモードの遊び方</b><br>・ボンたちは、ごはんもあそびも自分でするよ<br>・ボンからの『おねがい』に返事をしてあげよう<br>・ボンを選んで『なでなで』で、立ち絵をスライド<br>・夜には、その日のできごとが『にっき』にたまるよ</div>'}}
+
+ /* --- 実績を見守り向けに --- */
+ try{
+  ["a12","a13","a14","a15","a16","a17","a26"].forEach(id=>{const i=ACH.findIndex(a=>a.id===id);if(i>=0)ACH.splice(i,1)});
+  ACH.push(
+   {id:"w1",n:"はじめてのおねがい",d:"ボンのおねがいに返事をする",f:()=>(S.st.ask||0)>=1},
+   {id:"w2",n:"おねがい上手",d:"ボンのおねがいに10回返事をする",f:()=>(S.st.ask||0)>=10},
+   {id:"w3",n:"おねがいの達人",d:"ボンのおねがいに50回返事をする",f:()=>(S.st.ask||0)>=50},
+   {id:"w4",n:"なでなで好き",d:"なでなでで、ハートを30回出す",f:()=>(S.st.strk||0)>=30},
+   {id:"w5",n:"なでなで名人",d:"なでなでで、ハートを200回出す",f:()=>(S.st.strk||0)>=200},
+   {id:"w6",n:"おるすばん",d:"島をあけて、おかえりなさいと迎えられる",f:()=>(S.st.away||0)>=1},
+   {id:"w7",n:"のんびり見守り人",d:"留守番のあとの『おかえりなさい』を5回見る",f:()=>(S.st.away||0)>=5}
+  )}catch(e){}
+
+ /* --- 日記: ボンごとの一日ひとこと --- */
+ {const o=writeDiary;writeDiary=function(){
+  o.apply(this,arguments);
+  try{
+   const e=S.diary[S.diary.length-1];if(!e||e.d!==S.day||e._b)return;e._b=1;
+   const ps=S.rs.slice().sort(()=>Math.random()-.5).slice(0,2);
+   ps.forEach(r=>{
+    const n=CAST[r.id].name;
+    const t=r.joy>=75?n+"は、一日ずっとごきげんだった。":r.joy<40?n+"は、少し元気がなかった。あしたは、そばにいてあげたい。":r.hunger<35?n+"は、おなかをすかせていた。":r.bond>=60?n+"は、今日もそっと寄りそってくれた。":n+"は、のんびり過ごしていた。";
+    e.hl.push("🌙 "+t);
+   });
+  }catch(er){}
+ }}
+
+ /* --- ボン同士の会話イベント --- */
+ try{PAIR_SCN.push(
+  {a:"niko",b:"oko",e:"🎤",n:"にこボンが、おこボンの前でとびきりの一発芸を披露していた。",fa:["見て見て〜☆ これ、特別だよ！","どう？ 笑った？ 笑ったよね〜♪"],fb:["…ぷっ。べ、別に笑ってないわよ！","くだらないわね…でも、もう一回やって。"],ja:6,jb:5},
+  {a:"hyoe",b:"tere",e:"🌼",n:"ひょえボンとてれボンが、ふたりでこっそり花をながめていた。",fa:["てれさん…ここ、きれいなの…","ボン、てれさんといると、おちつく…"],fb:["は、はい…ほんとうに、きれいですね…","わたしも、ほっとします…"],ja:5,jb:5},
+  {a:"mogu",b:"nemu",e:"🍙",n:"もぐボンが、ねむボンの横でおにぎりを分けてあげていた。",fa:["ねむしゃん、はんぶんこ〜…どうぞ〜","おいしいよ〜…あ〜ん〜"],fb:["…ありがと…もぐ…","…おいしい…ふぁ…"],ja:5,jb:5},
+  {a:"rain",b:"tere",e:"📜",n:"にじボンが、てれボンの書いた手紙を朗読して、てれボンが真っ赤になっていた。",fa:["よく聞けい！ これぞ名文である！","うむ！ 実に美しい手紙ではないか！"],fb:["や、やめてくださいぃ…！","は、はずかしいですっ…！"],ja:5,jb:-1},
+  {a:"hyoe",b:"oko",e:"🛡️",n:"ひょえボンが雷におびえていると、おこボンが無言で隣に立ってくれた。",fa:["あわわ…おこさん、ありがとう…","おこさんがいると、こわくない…"],fb:["べ、別にあんたのためじゃないわよ！","…雷くらい、アタシが追い払ってあげるわ。"],ja:8,jb:3},
+  {a:"nemu",b:"rain",e:"🌙",n:"ねむボンが寝ているそばで、にじボンが小声で演説の練習をしていた。",fa:["…ぐぅ…","…むにゃ…"],fb:["むむ…静かに、静かにであるぞ……","しーっ…我輩の声は、小さくても威厳があるのだ。"],ja:2,jb:3},
+  {a:"niko",b:"mogu",e:"🎈",n:"にこボンともぐボンが、貝がらを集めて宝探しごっこをしていた。",fa:["ねぇねぇ、宝物みつけた〜☆","つぎはどこにしよっか〜♪"],fb:["うち〜、おにぎりの形の貝がらみつけた〜","こっちにもありそう〜…ほりほり〜"],ja:6,jb:6},
+  {a:"tere",b:"nemu",e:"🍃",n:"てれボンとねむボンが、木かげでならんでお昼寝していた。",fa:["あ、あの…おとなり、いいですか…？","…おやすみなさい…"],fb:["…ん…いいよ…","…ふぁ…あったかい…"],ja:5,jb:5},
+  {a:"rain",b:"hyoe",e:"🌈",n:"にじボンがひょえボンに、小さな虹を見せてあげていた。",fa:["よく聞けい！ これが我輩の虹であるぞ！","怖がらずともよい、これは優しい虹である！"],fb:["わぁ…きれい…ボン、すき…","にじさん、すごい…！"],ja:6,jb:8}
+ )}catch(e){}
+
+ /* --- 季節・天気で変わる島(ボンのひとこと) --- */
+ const WL={
+  oko:{rain:["雨なんて、ちっとも気にならないわよ。","ずぶぬれになったら、あんたのせいだからね！"],sunny:["いい天気ね。体を動かしたくなるわ。"],night:["夜は静かでいいわね…"],spring:["花びらが、髪にくっついたんだけど！"],summer:["暑いわ…でも、負けないんだから！"],autumn:["落ち葉をふむ音、悪くないわね。"],winter:["寒くなんか、ないんだからね！"]},
+  niko:{rain:["雨の音って、歌みたい〜♪","水たまり、ぴちゃぴちゃしたいな〜☆"],sunny:["お日さま、きらきら〜☆"],night:["おほしさま、いっぱい〜♪"],spring:["お花がいっぱい〜！ うれしい〜☆"],summer:["海だ〜！ およぎたいな〜♪"],autumn:["きいろの葉っぱ、わたしの色〜☆"],winter:["ゆき、まだかな〜♪"]},
+  hyoe:{rain:["あわわ…雨の音、ちょっとこわい…","かみなり…来ないよね…？"],sunny:["ぽかぽか…ボン、すき…"],night:["くらいの…ちょっと、こわい…"],spring:["お花、ふわふわ…きれい…"],summer:["あつい…とけちゃいそう…"],autumn:["落ち葉、かさかさ…かわいい…"],winter:["さむい…ぎゅってしたい…"]},
+  mogu:{rain:["雨の日は、おにぎりがおいしいね〜","ぬれても〜、へいき〜"],sunny:["ひなたで食べると、おいしいね〜"],night:["夜ごはん、まだかな〜…"],spring:["春はいちごがおいしいね〜"],summer:["夏は、すいかが食べたいな〜"],autumn:["秋は、くりごはんだね〜"],winter:["あったかいおにぎり〜、さいこう〜"]},
+  nemu:{rain:["…雨の音…ねむくなる…","…ふぁ…ぬれても、いい…"],sunny:["…ひなた…きもちいい…"],night:["…ねる時間…"],spring:["…あったかい…ねむい…"],summer:["…あつくて…ねむい…"],autumn:["…ふとんの季節…ふぁ…"],winter:["…ぬくぬく…さいこう…"]},
+  tere:{rain:["雨の音、ちょっと好きです…","か、傘…いっしょに入りますか…？"],sunny:["いい天気ですね…ほっとします…"],night:["お月さま、きれいです…"],spring:["お花を、つんでもいいですか…？"],summer:["海、すこしだけ入ってみたいです…"],autumn:["落ち葉で、しおりをつくりたいです…"],winter:["手が、つめたいです…"]},
+  rain:{rain:["雨とは、虹の前ぶれである！ うむ！","よく聞けい！ 雨のあとには、我輩の出番があるぞ！"],sunny:["晴れとは、我輩の舞台である！ わっはっは！"],night:["夜空に、虹はかからぬか…うむ、星でよい！"],spring:["春の虹は、やさしい色であるな。"],summer:["夏の虹は、堂々としておる！ 我輩のようにな！"],autumn:["秋の虹は、風情があるのう。"],winter:["冬の虹とは、めずらしいのだぞ！"]}
+ };
+ let wxAcc=0;
+ setInterval(()=>{
+  try{
+   if(!S||!S.auto||titleOpen||G||mg2||document.hidden)return;
+   wxAcc++;if(wxAcc<45+Math.floor(Math.random()*30))return;wxAcc=0;
+   const ps=S.rs.filter(r=>!r.sleep&&!(r.say&&Date.now()<r.sayUntil));if(!ps.length)return;
+   const r=pick(ps),L=WL[r.id];if(!L)return;
+   const se=season().k,night=isNight();
+   const keys=[];
+   if(S.weather==="rain")keys.push("rain","rain");else keys.push("sunny");
+   if(night)keys.push("night");keys.push(se);
+   const k=pick(keys),line=pick(L[k]||L[se]);
+   talkTo(r,line,4200);
+  }catch(e){}
+ },1000);
+
+ /* --- 留守番(放置中のお知らせ) --- */
+ const AWAY={
+  oko:["おこボンは、ひとりで筋トレをしていた。","おこボンは、「べ、別に待ってないわよ」と言いながら、何度も入口を見ていた。"],
+  niko:["にこボンは、貝がらのステージで歌っていた。","にこボンは、あなたの帰りを待ちながら、一発芸を練習していた。"],
+  hyoe:["ひょえボンは、窓の外をながめて、あなたを待っていた。","ひょえボンは、みんなの近くで、ちいさくなって過ごしていた。"],
+  mogu:["もぐボンは、おにぎりをたくさん食べていた。","もぐボンは、砂浜で食べられそうなものを探していた。"],
+  nemu:["ねむボンは、ずっとお昼寝していた。","ねむボンは、ハンモックでゆらゆらしていた。"],
+  tere:["てれボンは、あなたに宛てた手紙を、書いては丸めていた。","てれボンは、そっとお花をつんで、かざっていた。"],
+  rain:["にじボンは、空に向かって演説の練習をしていた。","にじボンは、小さな虹を何度もかけていた。"]
+ };
+ function fmtAway(ms){const m=Math.floor(ms/60000);if(m<60)return m+"分";const h=Math.floor(m/60);if(h<24)return h+"時間";return Math.floor(h/24)+"日"}
+ let awayDone=false;
+ function awayShow(ms){
+  const ps=S.rs.slice().sort(()=>Math.random()-.5);
+  const n=Math.min(5,Math.max(2,1+Math.floor(ms/1800000)));
+  const lines=[];
+  ps.slice(0,n).forEach(r=>{const a=AWAY[r.id];if(a){lines.push(pick(a));r.joy=clamp(Math.max(r.joy,50)+3);r.hunger=clamp(Math.max(r.hunger,55));}});
+  S.st.away=(S.st.away||0)+1;
+  lines.forEach(t=>log("🏝 留守中：「"+t.replace(/[「」]/g,"")+"」"));
+  const ov=document.createElement("div");ov.id="awayov";
+  ov.innerHTML='<div class="ab"><h3>🏝 おかえりなさい！</h3><p>島を空けていた時間：約'+fmtAway(ms)+'</p>'+lines.map(t=>'<p>・'+t.replace(/</g,"&lt;")+'</p>').join("")+'<p>ボンたちは、あなたの帰りを楽しみにしていたよ。</p><button type="button">島にもどる</button></div>';
+  ov.querySelector("button").addEventListener("click",()=>{ov.remove();try{save();render();checkAch()}catch(e){}});
+  document.body.appendChild(ov);
+  try{sfx("chime")}catch(e){}
+ }
+ function awayCheck(){
+  try{
+   if(!S||titleOpen||!S.rs||document.getElementById("awayov"))return;
+   const now=Date.now(),last=S.lastSeen;
+   if(last&&now-last>=900000&&!awayDone){awayDone=true;S.lastSeen=now;awayShow(now-last)}
+   else S.lastSeen=now;
+  }catch(e){}
+ }
+ window.__awayCheck=awayCheck;
+ setInterval(()=>{if(!document.hidden&&!titleOpen&&S&&S.rs&&!document.getElementById("awayov")){if(!awayDone)awayCheck();else S.lastSeen=Date.now()}},15000);
+ setTimeout(function w(){if(!titleOpen&&S&&S.rs){awayCheck();awayDone=true;setInterval(()=>{if(!document.hidden&&!titleOpen&&S&&S.rs&&!document.getElementById("awayov"))S.lastSeen=Date.now()},20000)}else setTimeout(w,1500)},1500);
+ document.addEventListener("visibilitychange",()=>{
+  try{
+   if(document.hidden){if(S&&!titleOpen)S.lastSeen=Date.now(),save()}
+   else{awayDone=false;awayCheck()}
+  }catch(e){}
+ });
 })();
 
 openTitle("main");
